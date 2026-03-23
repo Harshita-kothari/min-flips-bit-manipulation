@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Safety Eye AI</title>
+</head>
+<body>
+
+<h1>Safety Eye AI 🔍</h1>
+
+<!-- IMAGE SECTION -->
+<h2>Upload Image</h2>
+<input type="file" id="imageInput" accept="image/*">
+<button onclick="uploadImage()">Detect Image</button>
+
+<br><br>
+<img id="imageResult" width="400"/>
+
+<hr>
+
+<!-- VIDEO SECTION -->
+<h2>Upload Video</h2>
+<input type="file" id="videoInput" accept="video/mp4">
+<button onclick="uploadVideo()">Detect Video</button>
+
+<p id="loadingText" style="color:blue;"></p>
+
+<br>
+<video id="videoResult" width="400" controls autoplay></video>
+
+<script>
+
+// ✅ IMAGE FUNCTION
+async function uploadImage() {
+    let file = document.getElementById("imageInput").files[0];
+
+    if (!file) {
+        alert("Please select an image");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        let res = await fetch("http://127.0.0.1:8000/detect", {
+            method: "POST",
+            body: formData
+        });
+
+        if (!res.ok) {
+            let err = await res.text();
+            alert("Error: " + err);
+            return;
+        }
+
+        let blob = await res.blob();
+        document.getElementById("imageResult").src = URL.createObjectURL(blob);
+
+    } catch (error) {
+        alert("Image upload failed");
+        console.log(error);
+    }
+}
+
+
+// ✅ VIDEO FUNCTION
+async function uploadVideo() {
+    let file = document.getElementById("videoInput").files[0];
+
+    if (!file) {
+        alert("Select video first");
+        return;
+    }
+
+    let loading = document.getElementById("loadingText");
+    loading.innerText = "Processing... ⏳ (wait 20-60 sec)";
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    let res = await fetch("http://127.0.0.1:8000/detect_video", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await res.json();
+
+    if (data.video_url) {
+        let video = document.getElementById("videoResult");
+        video.src = data.video_url;
+        video.load();
+        loading.innerText = "Done ✅";
+    } else {
+        loading.innerText = "Error ❌";
+        alert("Failed");
+    }
+}
+</script>
+
+</body>
+</html>

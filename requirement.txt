@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+ultralytics
+python-multipart
+opencv-pythonfastapi
+uvicorn
+ultralytics
+python-multipart
+opencv-python
